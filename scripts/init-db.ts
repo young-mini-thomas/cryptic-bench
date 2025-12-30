@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { DEFAULT_MODELS } from '../packages/evaluator/src/models.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const dbPath = process.env.DATABASE_PATH || join(__dirname, '../data/cryptic-bench.db');
@@ -122,41 +123,17 @@ insertMetadata.run('last_scrape_date', null);
 insertMetadata.run('last_evaluation_date', null);
 insertMetadata.run('last_scraped_puzzle_id', null);
 
-// Insert default models
+// Insert default models from models.ts (single source of truth)
 const insertModel = db.prepare(`
   INSERT OR IGNORE INTO models (openrouter_id, provider, model_name, display_name)
   VALUES (?, ?, ?, ?)
 `);
 
-const models = [
-  // Anthropic
-  ['anthropic/claude-sonnet-4', 'anthropic', 'Claude Sonnet 4', 'Claude Sonnet 4'],
-  ['anthropic/claude-3.5-sonnet', 'anthropic', 'Claude 3.5 Sonnet', 'Claude 3.5 Sonnet'],
-  ['anthropic/claude-3.5-haiku', 'anthropic', 'Claude 3.5 Haiku', 'Claude 3.5 Haiku'],
-
-  // OpenAI
-  ['openai/gpt-4o', 'openai', 'GPT-4o', 'GPT-4o'],
-  ['openai/gpt-4o-mini', 'openai', 'GPT-4o Mini', 'GPT-4o Mini'],
-  ['openai/o1', 'openai', 'o1', 'o1'],
-
-  // Google
-  ['google/gemini-2.0-flash-exp:free', 'google', 'Gemini 2.0 Flash', 'Gemini 2.0 Flash'],
-  ['google/gemini-exp-1206:free', 'google', 'Gemini Exp', 'Gemini Exp'],
-
-  // xAI
-  ['x-ai/grok-2-1212', 'xai', 'Grok 2', 'Grok 2'],
-
-  // Open source
-  ['deepseek/deepseek-chat', 'deepseek', 'DeepSeek V3', 'DeepSeek V3'],
-  ['qwen/qwen-2.5-72b-instruct', 'qwen', 'Qwen 2.5 72B', 'Qwen 2.5 72B'],
-  ['meta-llama/llama-3.3-70b-instruct', 'meta', 'Llama 3.3 70B', 'Llama 3.3 70B'],
-];
-
-for (const [openrouterId, provider, modelName, displayName] of models) {
-  insertModel.run(openrouterId, provider, modelName, displayName);
+for (const model of DEFAULT_MODELS) {
+  insertModel.run(model.openrouterId, model.provider, model.modelName, model.displayName);
 }
 
 db.close();
 
 console.log(`Database initialized at: ${dbPath}`);
-console.log(`Inserted ${models.length} default models`);
+console.log(`Inserted ${DEFAULT_MODELS.length} default models`);
