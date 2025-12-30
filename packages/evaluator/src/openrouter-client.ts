@@ -28,6 +28,18 @@ export async function createCompletion(
 
   const startTime = Date.now();
 
+  // Only disable reasoning for Claude models (they have extended thinking by default)
+  const requestBody: Record<string, unknown> = {
+    model,
+    messages,
+    max_tokens: maxTokens,
+    temperature,
+  };
+
+  if (model.startsWith('anthropic/')) {
+    requestBody.reasoning = { effort: 'none' };
+  }
+
   const response = await fetch(OPENROUTER_API_URL, {
     method: 'POST',
     headers: {
@@ -36,12 +48,7 @@ export async function createCompletion(
       'HTTP-Referer': 'https://github.com/yourusername/cryptic-bench',
       'X-Title': 'Cryptic-Bench',
     },
-    body: JSON.stringify({
-      model,
-      messages,
-      max_tokens: maxTokens,
-      temperature,
-    }),
+    body: JSON.stringify(requestBody),
   });
 
   const responseTimeMs = Date.now() - startTime;

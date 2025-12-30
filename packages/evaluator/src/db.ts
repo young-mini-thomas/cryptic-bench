@@ -174,11 +174,12 @@ export function getCurrentTenure(dbPath: string, modelId: number, rankPosition: 
 export function extendTenure(dbPath: string, tenureId: number, weekId: string): void {
   const db = getDb(dbPath);
 
+  // Only increment if this week hasn't been counted yet
   db.prepare(`
     UPDATE rank_tenure
     SET weeks_count = weeks_count + 1, end_week = ?
-    WHERE id = ?
-  `).run(weekId, tenureId);
+    WHERE id = ? AND end_week != ?
+  `).run(weekId, tenureId, weekId);
 }
 
 export function endCurrentTenures(dbPath: string, modelId: number, weekId: string): void {
