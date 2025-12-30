@@ -1,12 +1,10 @@
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { fetchGuardianClues, fetchPuzzleClues, getRecentPuzzles, sleep, type DatasetClue } from './guardian-client.js';
-import { parseDatasetClues, getCurrentWeekId, getWeekStartDate } from './parser.js';
+import { fetchRecentPuzzles, fetchPuzzle, type FifteensquaredPuzzle } from './fifteensquared-client.js';
+import { parseFifteensquaredPuzzle, getCurrentWeekId } from './parser.js';
 import {
   getDb,
   closeDb,
-  getLastScrapedPuzzleId,
-  setLastScrapedPuzzleId,
   puzzleExists,
   insertPuzzle,
   insertClues,
@@ -33,53 +31,35 @@ export async function scrapeWeeklyPuzzles(options: ScrapeOptions = {}): Promise<
   if (verbose) {
     console.log(`Scraping puzzles for week: ${weekId}`);
     console.log(`Database: ${dbPath}`);
-    console.log(`Using cryptics.georgeho.org dataset API`);
+    console.log(`Using Fifteensquared.net for fresh Guardian puzzles`);
   }
 
-  // Fetch recent Guardian clues from the dataset
-  // Note: Dataset is historical (up to ~2023), so we fetch most recent available
-  if (verbose) {
-    console.log('Fetching Guardian puzzles from dataset...');
-  }
-
-  const clues = await fetchGuardianClues({
-    limit: 500,
+  // Fetch recent Guardian puzzles from Fifteensquared
+  const puzzles = await fetchRecentPuzzles({
+    limit: maxPuzzles + 5, // Fetch extra in case some are duplicates
+    verbose,
   });
 
-  if (verbose) {
-    console.log(`Fetched ${clues.length} clues from dataset`);
-  }
-
-  if (clues.length === 0) {
-    console.log('No puzzles found in dataset');
+  if (puzzles.length === 0) {
+    console.log('No puzzles found from Fifteensquared');
     closeDb();
     return 0;
   }
 
-  // Group clues by puzzle name
-  const puzzleGroups = new Map<string, DatasetClue[]>();
-  for (const clue of clues) {
-    if (!clue.puzzle_name.toLowerCase().includes('guardian')) continue;
-
-    const existing = puzzleGroups.get(clue.puzzle_name) || [];
-    existing.push(clue);
-    puzzleGroups.set(clue.puzzle_name, existing);
-  }
-
   if (verbose) {
-    console.log(`Found ${puzzleGroups.size} Guardian puzzles`);
+    console.log(`Fetched ${puzzles.length} puzzles from Fifteensquared`);
   }
 
   let puzzlesScraped = 0;
 
-  for (const [puzzleName, puzzleClues] of puzzleGroups) {
+  for (const puzzle of puzzles) {
     if (puzzlesScraped >= maxPuzzles) break;
 
     if (verbose) {
-      console.log(`\nProcessing: ${puzzleName} (${puzzleClues.length} clues)`);
+      console.log(`\nProcessing: ${puzzle.title} (${puzzle.clues.length} clues)`);
     }
 
-    const result = await savePuzzle(dbPath, puzzleClues, verbose);
+    const result = await savePuzzle(dbPath, puzzle, verbose);
     if (result) puzzlesScraped++;
   }
 
@@ -94,13 +74,10 @@ export async function scrapeWeeklyPuzzles(options: ScrapeOptions = {}): Promise<
 
 async function savePuzzle(
   dbPath: string,
-  clues: DatasetClue[],
+  fifteensquaredPuzzle: FifteensquaredPuzzle,
   verbose: boolean
 ): Promise<boolean> {
-  const parsed = parseDatasetClues(clues);
-  if (!parsed) return false;
-
-  const { puzzle, clues: parsedClues } = parsed;
+  const { puzzle, clues } = parseFifteensquaredPuzzle(fifteensquaredPuzzle);
 
   // Check if already exists
   if (puzzleExists(dbPath, puzzle.guardianId)) {
@@ -112,16 +89,12 @@ async function savePuzzle(
 
   // Insert into database
   const puzzleId = insertPuzzle(dbPath, puzzle);
-  insertClues(dbPath, puzzleId, parsedClues);
-
-  if (puzzle.guardianId > 0) {
-    setLastScrapedPuzzleId(dbPath, puzzle.guardianId);
-  }
+  insertClues(dbPath, puzzleId, clues);
 
   if (verbose) {
     console.log(`  Saved puzzle #${puzzle.guardianId} by ${puzzle.setter || 'Unknown'}`);
     console.log(`  Date: ${puzzle.publicationDate}, Week: ${puzzle.weekId}`);
-    console.log(`  Clues: ${parsedClues.length}`);
+    console.log(`  Clues: ${clues.length}`);
   }
 
   return true;

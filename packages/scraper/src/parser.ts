@@ -1,4 +1,5 @@
 import type { DatasetClue } from './guardian-client.js';
+import type { FifteensquaredPuzzle } from './fifteensquared-client.js';
 import type { Puzzle, Clue, ScrapedPuzzle } from './types.js';
 
 /**
@@ -107,4 +108,32 @@ export function getWeekStartDate(weekId: string): Date {
   targetMonday.setUTCDate(week1Monday.getUTCDate() + (week - 1) * 7);
 
   return targetMonday;
+}
+
+/**
+ * Convert a FifteensquaredPuzzle to our internal ScrapedPuzzle format
+ */
+export function parseFifteensquaredPuzzle(puzzle: FifteensquaredPuzzle): ScrapedPuzzle {
+  const parsedPuzzle: Puzzle = {
+    guardianId: puzzle.guardianNumber,
+    puzzleType: 'cryptic',
+    setter: puzzle.setter,
+    publicationDate: puzzle.publicationDate,
+    weekId: getWeekId(new Date(puzzle.publicationDate)),
+    rawJson: JSON.stringify({
+      title: puzzle.title,
+      url: puzzle.url,
+      clueCount: puzzle.clues.length,
+    }),
+  };
+
+  const parsedClues: Omit<Clue, 'puzzleId'>[] = puzzle.clues.map(clue => ({
+    clueNumber: clue.clueNumber,
+    direction: clue.direction,
+    clueText: clue.clueText,
+    answer: clue.answer,
+    letterCount: clue.letterCount,
+  }));
+
+  return { puzzle: parsedPuzzle, clues: parsedClues };
 }
