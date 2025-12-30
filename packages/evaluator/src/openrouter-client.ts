@@ -30,7 +30,8 @@ export async function createCompletion(
 
   const startTime = Date.now();
 
-  // Only disable reasoning for Claude models (they have extended thinking by default)
+  // Allow thinking/reasoning for all models - fair comparison
+  // Models that support extended thinking will use it
   const requestBody: Record<string, unknown> = {
     model,
     messages,
@@ -38,10 +39,6 @@ export async function createCompletion(
     temperature,
     usage: { include: true }, // Request cost information from OpenRouter
   };
-
-  if (model.startsWith('anthropic/')) {
-    requestBody.reasoning = { effort: 'none' };
-  }
 
   const response = await fetch(OPENROUTER_API_URL, {
     method: 'POST',
@@ -75,15 +72,15 @@ export async function createCompletion(
   const tokensUsed = data.usage?.total_tokens || 0;
   const cost = data.usage?.cost || 0;
 
-  // Log warning if content is empty (helps debug provider issues)
+  // Treat empty responses as errors so they get retried on next run
   if (!content) {
-    console.warn(`[WARN] Empty response from ${model}`);
-    console.warn(`[WARN] Response structure:`, JSON.stringify({
+    const debugInfo = JSON.stringify({
       hasChoices: !!data.choices,
       choicesLength: data.choices?.length,
       firstChoice: data.choices?.[0],
       usage: data.usage,
-    }, null, 2));
+    });
+    throw new Error(`Empty response from ${model}. Debug: ${debugInfo}`);
   }
 
   return {

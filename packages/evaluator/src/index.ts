@@ -145,7 +145,7 @@ async function evaluateClue(
     const result = await createCompletion(apiKey, {
       model: model.openrouterId,
       messages,
-      maxTokens: 50,
+      maxTokens: 500, // Higher to allow for models with extended thinking
       temperature: 0,
     });
 

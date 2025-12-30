@@ -68,21 +68,24 @@ export function getModelById(dbPath: string, id: number): Model | null {
 }
 
 // Evaluation queries
+// Only returns true for successful evaluations (no error) - errors get retried
 export function evaluationExists(dbPath: string, clueId: number, modelId: number): boolean {
   const db = getDb(dbPath);
 
   const result = db.prepare(`
-    SELECT 1 FROM evaluations WHERE clue_id = ? AND model_id = ?
+    SELECT 1 FROM evaluations
+    WHERE clue_id = ? AND model_id = ? AND error_message IS NULL
   `).get(clueId, modelId);
 
   return !!result;
 }
 
+// Uses INSERT OR REPLACE to allow retrying failed evaluations
 export function insertEvaluation(dbPath: string, evaluation: Evaluation): void {
   const db = getDb(dbPath);
 
   db.prepare(`
-    INSERT INTO evaluations (clue_id, model_id, week_id, model_response, extracted_answer,
+    INSERT OR REPLACE INTO evaluations (clue_id, model_id, week_id, model_response, extracted_answer,
                              is_correct, response_time_ms, tokens_used, cost, error_message)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
