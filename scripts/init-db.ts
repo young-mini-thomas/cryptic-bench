@@ -123,17 +123,26 @@ insertMetadata.run('last_scrape_date', null);
 insertMetadata.run('last_evaluation_date', null);
 insertMetadata.run('last_scraped_puzzle_id', null);
 
-// Insert default models from models.ts (single source of truth)
-const insertModel = db.prepare(`
-  INSERT OR IGNORE INTO models (openrouter_id, provider, model_name, display_name)
-  VALUES (?, ?, ?, ?)
+// Sync models from models.ts (single source of truth)
+// 1. Deactivate all models
+// 2. Upsert models from DEFAULT_MODELS and activate them
+db.prepare(`UPDATE models SET is_active = 0`).run();
+
+const upsertModel = db.prepare(`
+  INSERT INTO models (openrouter_id, provider, model_name, display_name, is_active)
+  VALUES (?, ?, ?, ?, 1)
+  ON CONFLICT(openrouter_id) DO UPDATE SET
+    provider = excluded.provider,
+    model_name = excluded.model_name,
+    display_name = excluded.display_name,
+    is_active = 1
 `);
 
 for (const model of DEFAULT_MODELS) {
-  insertModel.run(model.openrouterId, model.provider, model.modelName, model.displayName);
+  upsertModel.run(model.openrouterId, model.provider, model.modelName, model.displayName);
 }
 
 db.close();
 
 console.log(`Database initialized at: ${dbPath}`);
-console.log(`Inserted ${DEFAULT_MODELS.length} default models`);
+console.log(`Synced ${DEFAULT_MODELS.length} active models`);
