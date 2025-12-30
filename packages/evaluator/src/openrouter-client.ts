@@ -40,6 +40,11 @@ export async function createCompletion(
     usage: { include: true }, // Request cost information from OpenRouter
   };
 
+  // Gemini models need capped reasoning or they think forever without answering
+  if (model.includes('gemini')) {
+    requestBody.reasoning = { max_tokens: 1000 };
+  }
+
   const response = await fetch(OPENROUTER_API_URL, {
     method: 'POST',
     headers: {
