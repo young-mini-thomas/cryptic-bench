@@ -1,6 +1,7 @@
 import type { OpenRouterResponse } from './types.js';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const DEBUG = process.env.DEBUG_OPENROUTER === 'true';
 
 interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -18,6 +19,7 @@ interface CompletionResult {
   content: string;
   tokensUsed: number;
   responseTimeMs: number;
+  cost: number;
 }
 
 export async function createCompletion(
@@ -34,6 +36,7 @@ export async function createCompletion(
     messages,
     max_tokens: maxTokens,
     temperature,
+    usage: { include: true }, // Request cost information from OpenRouter
   };
 
   if (model.startsWith('anthropic/')) {
@@ -60,17 +63,34 @@ export async function createCompletion(
 
   const data = (await response.json()) as OpenRouterResponse;
 
+  if (DEBUG) {
+    console.log(`[DEBUG] ${model} raw response:`, JSON.stringify(data, null, 2));
+  }
+
   if (data.error) {
     throw new Error(`OpenRouter error: ${data.error.message}`);
   }
 
   const content = data.choices?.[0]?.message?.content || '';
   const tokensUsed = data.usage?.total_tokens || 0;
+  const cost = data.usage?.cost || 0;
+
+  // Log warning if content is empty (helps debug provider issues)
+  if (!content) {
+    console.warn(`[WARN] Empty response from ${model}`);
+    console.warn(`[WARN] Response structure:`, JSON.stringify({
+      hasChoices: !!data.choices,
+      choicesLength: data.choices?.length,
+      firstChoice: data.choices?.[0],
+      usage: data.usage,
+    }, null, 2));
+  }
 
   return {
     content,
     tokensUsed,
     responseTimeMs,
+    cost,
   };
 }
 

@@ -11,6 +11,18 @@ interface LeaderboardProps {
   weekId: string;
 }
 
+function formatTime(ms: number | null): string {
+  if (ms === null) return '-';
+  const seconds = ms / 1000;
+  return `${seconds.toFixed(1)}s`;
+}
+
+function formatCost(cost: number | null): string {
+  if (cost === null || cost === 0) return '-';
+  if (cost < 0.01) return `$${cost.toFixed(4)}`;
+  return `$${cost.toFixed(2)}`;
+}
+
 export function Leaderboard({ rankings, weekId }: LeaderboardProps) {
   const [expandedModelId, setExpandedModelId] = useState<number | null>(null);
 
@@ -59,6 +71,15 @@ export function Leaderboard({ rankings, weekId }: LeaderboardProps) {
                   </div>
                   <div className="text-sm text-gray-500">
                     {ranking.correctCount}/{ranking.totalClues} correct
+                  </div>
+                </div>
+
+                <div className="text-right text-sm">
+                  <div className="text-gray-600">
+                    {formatTime(ranking.avgResponseTimeMs)} avg
+                  </div>
+                  <div className="text-gray-500">
+                    {formatCost(ranking.totalCost)}
                   </div>
                 </div>
 

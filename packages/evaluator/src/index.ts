@@ -83,49 +83,34 @@ export async function evaluateWeek(options: EvaluateOptions = {}): Promise<void>
     console.log('');
   }
 
-  // Evaluate each model on each clue
+  // Evaluate all models in parallel (each model processes clues sequentially)
+  if (verbose) {
+    console.log(`\nStarting parallel evaluation of ${models.length} models...`);
+  }
+
+  const modelResults = await Promise.all(
+    models.map((model) =>
+      evaluateModelClues(model, clues, {
+        dbPath,
+        weekId,
+        apiKey,
+        verbose,
+        skipExisting,
+      })
+    )
+  );
+
+  // Aggregate results from all models
   let totalEvaluations = 0;
   let totalCorrect = 0;
   let totalSkipped = 0;
   let totalErrors = 0;
 
-  for (const model of models) {
-    if (verbose) {
-      console.log(`\n=== ${model.displayName} ===`);
-    }
-
-    let modelCorrect = 0;
-    let modelTotal = 0;
-
-    for (const clue of clues) {
-      // Skip if already evaluated
-      if (skipExisting && evaluationExists(dbPath, clue.id, model.id)) {
-        totalSkipped++;
-        continue;
-      }
-
-      const evaluation = await evaluateClue(clue, model, weekId, apiKey, verbose);
-      insertEvaluation(dbPath, evaluation);
-
-      totalEvaluations++;
-      modelTotal++;
-
-      if (evaluation.isCorrect) {
-        totalCorrect++;
-        modelCorrect++;
-      }
-
-      if (evaluation.errorMessage) {
-        totalErrors++;
-      }
-
-      // Rate limiting between API calls
-      await sleep(500);
-    }
-
-    if (verbose && modelTotal > 0) {
-      console.log(`  Result: ${modelCorrect}/${modelTotal} (${((modelCorrect / modelTotal) * 100).toFixed(1)}%)`);
-    }
+  for (const result of modelResults) {
+    totalEvaluations += result.evaluations;
+    totalCorrect += result.correct;
+    totalSkipped += result.skipped;
+    totalErrors += result.errors;
   }
 
   if (verbose) {
@@ -182,6 +167,7 @@ async function evaluateClue(
       isCorrect,
       responseTimeMs: result.responseTimeMs,
       tokensUsed: result.tokensUsed,
+      cost: result.cost,
       errorMessage: null,
     };
   } catch (error) {
@@ -201,6 +187,7 @@ async function evaluateClue(
       isCorrect: false,
       responseTimeMs: null,
       tokensUsed: null,
+      cost: null,
       errorMessage,
     };
   }
@@ -208,6 +195,77 @@ async function evaluateClue(
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+interface ModelEvalOptions {
+  dbPath: string;
+  weekId: string;
+  apiKey: string;
+  verbose: boolean;
+  skipExisting: boolean;
+}
+
+interface ModelEvalResult {
+  modelId: number;
+  modelName: string;
+  evaluations: number;
+  correct: number;
+  skipped: number;
+  errors: number;
+}
+
+async function evaluateModelClues(
+  model: Model,
+  clues: Clue[],
+  options: ModelEvalOptions
+): Promise<ModelEvalResult> {
+  const { dbPath, weekId, apiKey, verbose, skipExisting } = options;
+
+  let evaluations = 0;
+  let correct = 0;
+  let skipped = 0;
+  let errors = 0;
+
+  if (verbose) {
+    console.log(`\n=== ${model.displayName} (starting) ===`);
+  }
+
+  for (const clue of clues) {
+    // Skip if already evaluated
+    if (skipExisting && evaluationExists(dbPath, clue.id, model.id)) {
+      skipped++;
+      continue;
+    }
+
+    const evaluation = await evaluateClue(clue, model, weekId, apiKey, verbose);
+    insertEvaluation(dbPath, evaluation);
+
+    evaluations++;
+
+    if (evaluation.isCorrect) {
+      correct++;
+    }
+
+    if (evaluation.errorMessage) {
+      errors++;
+    }
+
+    // Rate limiting between API calls (per model)
+    await sleep(500);
+  }
+
+  if (verbose && evaluations > 0) {
+    console.log(`  ${model.displayName} Result: ${correct}/${evaluations} (${((correct / evaluations) * 100).toFixed(1)}%)`);
+  }
+
+  return {
+    modelId: model.id,
+    modelName: model.displayName,
+    evaluations,
+    correct,
+    skipped,
+    errors,
+  };
 }
 
 // CLI entry point

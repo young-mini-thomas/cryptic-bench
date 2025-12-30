@@ -34,15 +34,26 @@ export function getWeeklyLeaderboard(weekId: string): WeeklyRanking[] {
       wr.rank,
       wr.previous_rank,
       wr.rank_change,
-      rt.weeks_count as tenure_weeks
+      rt.weeks_count as tenure_weeks,
+      em.avg_response_time_ms,
+      em.total_cost
     FROM weekly_rankings wr
     JOIN models m ON wr.model_id = m.id
     LEFT JOIN rank_tenure rt ON m.id = rt.model_id
       AND rt.rank_position = wr.rank
       AND rt.is_current = 1
+    LEFT JOIN (
+      SELECT
+        model_id,
+        AVG(response_time_ms) as avg_response_time_ms,
+        SUM(cost) as total_cost
+      FROM evaluations
+      WHERE week_id = ?
+      GROUP BY model_id
+    ) em ON wr.model_id = em.model_id
     WHERE wr.week_id = ?
     ORDER BY wr.rank ASC
-  `, [weekId]);
+  `, [weekId, weekId]);
 
   if (result.length === 0) return [];
 
@@ -58,6 +69,8 @@ export function getWeeklyLeaderboard(weekId: string): WeeklyRanking[] {
     previousRank: row[8] as number | null,
     rankChange: row[9] as number | null,
     tenureWeeks: row[10] as number | null,
+    avgResponseTimeMs: row[11] as number | null,
+    totalCost: row[12] as number | null,
   }));
 }
 

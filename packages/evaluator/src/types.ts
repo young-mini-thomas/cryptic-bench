@@ -26,6 +26,7 @@ export interface Evaluation {
   isCorrect: boolean;
   responseTimeMs: number | null;
   tokensUsed: number | null;
+  cost: number | null;
   errorMessage: string | null;
 }
 
@@ -53,6 +54,7 @@ export interface OpenRouterResponse {
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
+    cost?: number;
   };
   error?: {
     message: string;

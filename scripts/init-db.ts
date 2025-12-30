@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS evaluations (
     is_correct BOOLEAN NOT NULL,
     response_time_ms INTEGER,
     tokens_used INTEGER,
+    cost REAL,
     error_message TEXT,
     evaluated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(clue_id, model_id)
@@ -113,6 +114,14 @@ CREATE TABLE IF NOT EXISTS metadata (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 `);
+
+// Migration: Add cost column if it doesn't exist (for existing databases)
+const columns = db.prepare(`PRAGMA table_info(evaluations)`).all() as { name: string }[];
+const hasCostColumn = columns.some(col => col.name === 'cost');
+if (!hasCostColumn) {
+  db.exec(`ALTER TABLE evaluations ADD COLUMN cost REAL`);
+  console.log('Added cost column to evaluations table');
+}
 
 // Insert initial metadata
 const insertMetadata = db.prepare(`

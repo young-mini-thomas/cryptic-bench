@@ -83,8 +83,8 @@ export function insertEvaluation(dbPath: string, evaluation: Evaluation): void {
 
   db.prepare(`
     INSERT INTO evaluations (clue_id, model_id, week_id, model_response, extracted_answer,
-                             is_correct, response_time_ms, tokens_used, error_message)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                             is_correct, response_time_ms, tokens_used, cost, error_message)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     evaluation.clueId,
     evaluation.modelId,
@@ -94,6 +94,7 @@ export function insertEvaluation(dbPath: string, evaluation: Evaluation): void {
     evaluation.isCorrect ? 1 : 0,
     evaluation.responseTimeMs,
     evaluation.tokensUsed,
+    evaluation.cost,
     evaluation.errorMessage
   );
 }
@@ -105,7 +106,7 @@ export function getEvaluationsForWeek(dbPath: string, weekId: string): Array<Eva
     SELECT e.clue_id as clueId, e.model_id as modelId, e.week_id as weekId,
            e.model_response as modelResponse, e.extracted_answer as extractedAnswer,
            e.is_correct as isCorrect, e.response_time_ms as responseTimeMs,
-           e.tokens_used as tokensUsed, e.error_message as errorMessage,
+           e.tokens_used as tokensUsed, e.cost, e.error_message as errorMessage,
            m.display_name as modelDisplayName
     FROM evaluations e
     JOIN models m ON e.model_id = m.id

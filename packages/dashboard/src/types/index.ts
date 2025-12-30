@@ -19,6 +19,8 @@ export interface WeeklyRanking {
   previousRank: number | null;
   rankChange: number | null;
   tenureWeeks: number | null;
+  avgResponseTimeMs: number | null;
+  totalCost: number | null;
 }
 
 export interface ClueResult {
