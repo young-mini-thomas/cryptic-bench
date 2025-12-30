@@ -1,0 +1,22 @@
+{
+  "name": "cryptic-bench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LLM benchmark for cryptic crossword solving",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "scrape": "npm run start -w packages/scraper",
+    "evaluate": "npm run start -w packages/evaluator",
+    "init-db": "npx tsx scripts/init-db.ts",
+    "weekly": "npx tsx scripts/run-weekly.ts",
+    "dev": "npm run dev -w packages/dashboard",
+    "build": "npm run build -w packages/dashboard"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  }
+}
