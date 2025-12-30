@@ -1,4 +1,5 @@
 import { getDatabase } from './sqlite-client';
+import type { SqlValue } from 'sql.js';
 import type { WeeklyRanking, ClueResult, WeekSummary } from '../types';
 
 export function getAvailableWeeks(): string[] {
@@ -11,7 +12,7 @@ export function getAvailableWeeks(): string[] {
 
   if (result.length === 0) return [];
 
-  return result[0].values.map((row) => row[0] as string);
+  return result[0].values.map((row: SqlValue[]) => row[0] as string);
 }
 
 export function getCurrentWeekId(): string | null {
@@ -45,7 +46,7 @@ export function getWeeklyLeaderboard(weekId: string): WeeklyRanking[] {
 
   if (result.length === 0) return [];
 
-  return result[0].values.map((row) => ({
+  return result[0].values.map((row: SqlValue[]) => ({
     weekId: row[0] as string,
     modelId: row[1] as number,
     displayName: row[2] as string,
@@ -82,7 +83,7 @@ export function getModelClueResults(modelId: number, weekId: string): ClueResult
 
   if (result.length === 0) return [];
 
-  return result[0].values.map((row) => ({
+  return result[0].values.map((row: SqlValue[]) => ({
     clueId: row[0] as number,
     clueText: row[1] as string,
     letterCount: row[2] as string,
@@ -131,7 +132,7 @@ export function getModelHistory(modelId: number): Array<{ weekId: string; rank: 
 
   if (result.length === 0) return [];
 
-  return result[0].values.map((row) => ({
+  return result[0].values.map((row: SqlValue[]) => ({
     weekId: row[0] as string,
     rank: row[1] as number,
     accuracy: row[2] as number,
@@ -153,7 +154,7 @@ export function getTenureLeaders(): Array<{ displayName: string; rankPosition: n
 
   if (result.length === 0) return [];
 
-  return result[0].values.map((row) => ({
+  return result[0].values.map((row: SqlValue[]) => ({
     displayName: row[0] as string,
     rankPosition: row[1] as number,
     weeksCount: row[2] as number,

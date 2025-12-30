@@ -130,15 +130,14 @@ const insertModel = db.prepare(`
 
 const models = [
   // Anthropic
-  ['anthropic/claude-opus-4-20250514', 'anthropic', 'Claude Opus 4', 'Claude Opus 4'],
-  ['anthropic/claude-sonnet-4-20250514', 'anthropic', 'Claude Sonnet 4', 'Claude Sonnet 4'],
+  ['anthropic/claude-sonnet-4', 'anthropic', 'Claude Sonnet 4', 'Claude Sonnet 4'],
   ['anthropic/claude-3.5-sonnet', 'anthropic', 'Claude 3.5 Sonnet', 'Claude 3.5 Sonnet'],
   ['anthropic/claude-3.5-haiku', 'anthropic', 'Claude 3.5 Haiku', 'Claude 3.5 Haiku'],
 
   // OpenAI
   ['openai/gpt-4o', 'openai', 'GPT-4o', 'GPT-4o'],
+  ['openai/gpt-4o-mini', 'openai', 'GPT-4o Mini', 'GPT-4o Mini'],
   ['openai/o1', 'openai', 'o1', 'o1'],
-  ['openai/o1-mini', 'openai', 'o1-mini', 'o1-mini'],
 
   // Google
   ['google/gemini-2.0-flash-exp:free', 'google', 'Gemini 2.0 Flash', 'Gemini 2.0 Flash'],
@@ -150,6 +149,7 @@ const models = [
   // Open source
   ['deepseek/deepseek-chat', 'deepseek', 'DeepSeek V3', 'DeepSeek V3'],
   ['qwen/qwen-2.5-72b-instruct', 'qwen', 'Qwen 2.5 72B', 'Qwen 2.5 72B'],
+  ['meta-llama/llama-3.3-70b-instruct', 'meta', 'Llama 3.3 70B', 'Llama 3.3 70B'],
 ];
 
 for (const [openrouterId, provider, modelName, displayName] of models) {

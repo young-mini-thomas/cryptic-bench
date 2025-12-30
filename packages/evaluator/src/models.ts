@@ -1,7 +1,5 @@
 // Default models to evaluate via OpenRouter
-// These can be overridden by the database
-// Updated based on LMSYS/LMArena leaderboard rankings (December 2025)
-// Only includes the latest iteration of each model type
+// Updated December 2025 with latest frontier models
 
 export const DEFAULT_MODELS = [
   // Anthropic
@@ -44,12 +42,6 @@ export const DEFAULT_MODELS = [
     provider: 'openai',
     modelName: 'GPT-5.2',
     displayName: 'GPT-5.2',
-  },
-  {
-    openrouterId: 'openai/o3',
-    provider: 'openai',
-    modelName: 'o3',
-    displayName: 'o3',
   },
 
   // xAI

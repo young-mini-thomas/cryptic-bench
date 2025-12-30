@@ -45,26 +45,38 @@ Explanation:
 ## Models Evaluated
 
 ### Anthropic
-- Claude Opus 4
-- Claude Sonnet 4
-- Claude 3.5 Sonnet
-- Claude 3.5 Haiku
-
-### OpenAI
-- GPT-4o
-- o1
-- o1-mini
+- Claude Opus 4.5
+- Claude Sonnet 4.5
+- Claude Haiku 4.5
 
 ### Google
-- Gemini 2.0 Flash
-- Gemini Exp
+- Gemini 3 Pro
+- Gemini 3 Flash
+
+### OpenAI
+- GPT-5.2
+- o3
 
 ### xAI
-- Grok 2
+- Grok 4.1 Fast
 
-### Open Source
-- DeepSeek V3
-- Qwen 2.5 72B
+### DeepSeek
+- DeepSeek V3.2
+
+### Qwen
+- Qwen3 Max
+
+### Mistral
+- Mistral Large 3
+
+### Meta
+- Llama 3.3 70B
+
+### Zhipu AI
+- GLM-4.7
+
+### MiniMax
+- MiniMax M2.1
 
 ## Tech Stack
 
@@ -136,9 +148,13 @@ npm run dev
 
 ## Data Sources
 
-Puzzles are sourced from the [cryptics.georgeho.org](https://cryptics.georgeho.org/) dataset, which aggregates Guardian cryptic crossword clues from the Fifteensquared blog. This provides access to over 200,000 Guardian clues with verified answers.
+Puzzles are scraped directly from [Fifteensquared.net](https://www.fifteensquared.net/), a community blog that publishes daily solutions and explanations for Guardian cryptic crosswords. This provides:
 
-For future development, direct Guardian scraping may be added when their new frontend rendering is better understood.
+- **Fresh daily clues** - Solutions are typically published within 24 hours of the puzzle appearing in the Guardian
+- **Verified answers** - Community-checked solutions with detailed explanations
+- **Complete coverage** - All Guardian cryptic puzzles are covered
+
+The scraper fetches recent puzzles via the RSS feed and parses the clue tables from each blog post.
 
 ## Evaluation Methodology
 
@@ -169,13 +185,18 @@ Answer:
 - Same temperature settings across models
 - Results published with full transparency
 
-## Weekly Schedule
+## Automation
 
-- **Sunday 6 AM UTC**: GitHub Action runs
-  1. Scrapes the latest Guardian cryptic
-  2. Evaluates all models
-  3. Calculates rankings
-  4. Deploys updated dashboard
+The benchmark runs automatically via GitHub Actions:
+
+- **On every push to main**: Scrapes latest puzzles, evaluates models, and deploys dashboard
+- **Weekly (Sunday 6 AM UTC)**: Scheduled run to ensure fresh data even without code changes
+
+Each run:
+1. Scrapes the latest Guardian cryptic from Fifteensquared
+2. Evaluates all models via OpenRouter API
+3. Calculates rankings and updates tenure tracking
+4. Deploys updated dashboard to GitHub Pages
 
 ## Contributing
 

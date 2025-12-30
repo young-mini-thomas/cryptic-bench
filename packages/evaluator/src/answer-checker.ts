@@ -24,15 +24,16 @@ export function extractAnswer(response: string): string {
 
 /**
  * Check if the extracted answer matches the correct answer.
- * Case-insensitive, ignores punctuation and extra whitespace.
+ * Case-insensitive, ignores punctuation, spaces, and hyphens.
  */
 export function checkAnswer(modelAnswer: string, correctAnswer: string): boolean {
-  const extracted = extractAnswer(modelAnswer);
+  const extracted = extractAnswer(modelAnswer)
+    .replace(/\s+/g, '')  // Remove all spaces for comparison
+    .replace(/-/g, '');   // Remove hyphens
+
   const correct = correctAnswer
     .toUpperCase()
-    .replace(/[^A-Z\s]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
+    .replace(/[^A-Z]/g, '');  // Keep only letters
 
   return extracted === correct;
 }
