@@ -2,6 +2,8 @@
 
 A weekly benchmark testing frontier LLMs on their ability to solve cryptic crossword clues.
 
+**Live Leaderboard:** https://young-mini-thomas.github.io/cryptic-bench/
+
 ## Overview
 
 Cryptic crosswords are a uniquely challenging test of language understanding, requiring:

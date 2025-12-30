@@ -14,7 +14,7 @@ export async function initDatabase(): Promise<Database> {
     });
 
     // Fetch the database file
-    const response = await fetch('/cryptic-bench.db');
+    const response = await fetch(`${import.meta.env.BASE_URL}cryptic-bench.db`);
 
     if (!response.ok) {
       throw new Error(`Failed to fetch database: ${response.status}`);
