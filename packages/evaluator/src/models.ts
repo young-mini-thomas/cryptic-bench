@@ -3,24 +3,24 @@
 
 export const DEFAULT_MODELS = [
   // // Anthropic
-  {
-    openrouterId: 'anthropic/claude-opus-4.5',
-    provider: 'anthropic',
-    modelName: 'Claude Opus 4.5',
-    displayName: 'Claude Opus 4.5',
-  },
+  // {
+  //   openrouterId: 'anthropic/claude-opus-4.5',
+  //   provider: 'anthropic',
+  //   modelName: 'Claude Opus 4.5',
+  //   displayName: 'Claude Opus 4.5',
+  // },
   {
     openrouterId: 'anthropic/claude-sonnet-4.5',
     provider: 'anthropic',
     modelName: 'Claude Sonnet 4.5',
     displayName: 'Claude Sonnet 4.5',
   },
-  {
-    openrouterId: 'anthropic/claude-haiku-4.5',
-    provider: 'anthropic',
-    modelName: 'Claude Haiku 4.5',
-    displayName: 'Claude Haiku 4.5',
-  },
+  // {
+  //   openrouterId: 'anthropic/claude-haiku-4.5',
+  //   provider: 'anthropic',
+  //   modelName: 'Claude Haiku 4.5',
+  //   displayName: 'Claude Haiku 4.5',
+  // },
 
   // // Google
   {
@@ -45,36 +45,36 @@ export const DEFAULT_MODELS = [
   },
 
   // xAI
-  {
-    openrouterId: 'x-ai/grok-4.1-fast',
-    provider: 'xai',
-    modelName: 'Grok 4.1 Fast',
-    displayName: 'Grok 4.1 Fast',
-  },
+  // {
+  //   openrouterId: 'x-ai/grok-4.1-fast',
+  //   provider: 'xai',
+  //   modelName: 'Grok 4.1 Fast',
+  //   displayName: 'Grok 4.1 Fast',
+  // },
 
   // DeepSeek
-  {
-    openrouterId: 'deepseek/deepseek-v3.2',
-    provider: 'deepseek',
-    modelName: 'DeepSeek V3.2',
-    displayName: 'DeepSeek V3.2',
-  },
+  // {
+  //   openrouterId: 'deepseek/deepseek-v3.2',
+  //   provider: 'deepseek',
+  //   modelName: 'DeepSeek V3.2',
+  //   displayName: 'DeepSeek V3.2',
+  // },
 
-  // Qwen
-  {
-    openrouterId: 'qwen/qwen3-max',
-    provider: 'qwen',
-    modelName: 'Qwen3 Max',
-    displayName: 'Qwen3 Max',
-  },
+  // // Qwen
+  // {
+  //   openrouterId: 'qwen/qwen3-max',
+  //   provider: 'qwen',
+  //   modelName: 'Qwen3 Max',
+  //   displayName: 'Qwen3 Max',
+  // },
 
-  // Mistral
-  {
-    openrouterId: 'mistralai/mistral-large-2512',
-    provider: 'mistral',
-    modelName: 'Mistral Large 3',
-    displayName: 'Mistral Large 3',
-  },
+  // // Mistral
+  // {
+  //   openrouterId: 'mistralai/mistral-large-2512',
+  //   provider: 'mistral',
+  //   modelName: 'Mistral Large 3',
+  //   displayName: 'Mistral Large 3',
+  // },
 
   // Meta
   {
