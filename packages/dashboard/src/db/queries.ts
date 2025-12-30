@@ -1,6 +1,6 @@
 import { getDatabase } from './sqlite-client';
 import type { SqlValue } from 'sql.js';
-import type { WeeklyRanking, ClueResult, WeekSummary } from '../types';
+import type { WeeklyRanking, ClueResult, WeekSummary, PuzzleInfo } from '../types';
 
 export function getAvailableWeeks(): string[] {
   const db = getDatabase();
@@ -159,4 +159,39 @@ export function getTenureLeaders(): Array<{ displayName: string; rankPosition: n
     rankPosition: row[1] as number,
     weeksCount: row[2] as number,
   }));
+}
+
+export function getWeekPuzzles(weekId: string): PuzzleInfo[] {
+  const db = getDatabase();
+  const result = db.exec(`
+    SELECT id, setter, raw_json
+    FROM puzzles
+    WHERE week_id = ?
+    ORDER BY publication_date
+  `, [weekId]);
+
+  if (result.length === 0) return [];
+
+  return result[0].values.map((row: SqlValue[]) => {
+    const rawJson = row[2] as string | null;
+    let url: string | null = null;
+    let title: string | null = null;
+
+    if (rawJson) {
+      try {
+        const parsed = JSON.parse(rawJson);
+        url = parsed.url || null;
+        title = parsed.title || null;
+      } catch {
+        // Ignore parse errors
+      }
+    }
+
+    return {
+      id: row[0] as number,
+      setter: row[1] as string | null,
+      url,
+      title,
+    };
+  });
 }

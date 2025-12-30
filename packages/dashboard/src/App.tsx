@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { initDatabase, isInitialized } from './db/sqlite-client';
-import { getAvailableWeeks, getWeeklyLeaderboard, getWeekSummary } from './db/queries';
+import { getAvailableWeeks, getWeeklyLeaderboard, getWeekSummary, getWeekPuzzles } from './db/queries';
 import { Header } from './components/Header';
 import { Leaderboard } from './components/Leaderboard';
 import { WeekSelector } from './components/WeekSelector';
-import type { WeeklyRanking, WeekSummary as WeekSummaryType } from './types';
+import type { WeeklyRanking, WeekSummary as WeekSummaryType, PuzzleInfo } from './types';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -13,6 +13,7 @@ function App() {
   const [selectedWeek, setSelectedWeek] = useState<string>('');
   const [rankings, setRankings] = useState<WeeklyRanking[]>([]);
   const [summary, setSummary] = useState<WeekSummaryType | null>(null);
+  const [puzzles, setPuzzles] = useState<PuzzleInfo[]>([]);
 
   // Initialize database
   useEffect(() => {
@@ -44,6 +45,9 @@ function App() {
 
       const weekSummary = getWeekSummary(selectedWeek);
       setSummary(weekSummary);
+
+      const weekPuzzles = getWeekPuzzles(selectedWeek);
+      setPuzzles(weekPuzzles);
     } catch (err) {
       console.error('Failed to load week data:', err);
     }
@@ -100,6 +104,28 @@ function App() {
                 {summary.puzzleCount !== 1 ? 's' : ''} • {summary.modelCount} models evaluated
               </p>
             )}
+            {puzzles.length > 0 && (
+              <p className="text-sm text-gray-400 mt-1">
+                Source{puzzles.length !== 1 ? 's' : ''}:{' '}
+                {puzzles.map((puzzle, index) => (
+                  <span key={puzzle.id}>
+                    {index > 0 && ', '}
+                    {puzzle.url ? (
+                      <a
+                        href={puzzle.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        {puzzle.title || puzzle.setter || `Puzzle ${puzzle.id}`}
+                      </a>
+                    ) : (
+                      <span>{puzzle.title || puzzle.setter || `Puzzle ${puzzle.id}`}</span>
+                    )}
+                  </span>
+                ))}
+              </p>
+            )}
           </div>
 
           <WeekSelector weeks={weeks} selected={selectedWeek} onChange={setSelectedWeek} />
@@ -111,12 +137,12 @@ function App() {
           <p>
             Puzzles sourced from{' '}
             <a
-              href="https://www.theguardian.com/crosswords"
+              href="https://www.fifteensquared.net/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-500 hover:underline"
             >
-              The Guardian
+              Fifteensquared
             </a>
             . Models evaluated via{' '}
             <a

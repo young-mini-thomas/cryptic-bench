@@ -3,18 +3,18 @@
 
 export const DEFAULT_MODELS = [
   // // Anthropic
-  // {
-  //   openrouterId: 'anthropic/claude-opus-4.5',
-  //   provider: 'anthropic',
-  //   modelName: 'Claude Opus 4.5',
-  //   displayName: 'Claude Opus 4.5',
-  // },
-  // {
-  //   openrouterId: 'anthropic/claude-sonnet-4.5',
-  //   provider: 'anthropic',
-  //   modelName: 'Claude Sonnet 4.5',
-  //   displayName: 'Claude Sonnet 4.5',
-  // },
+  {
+    openrouterId: 'anthropic/claude-opus-4.5',
+    provider: 'anthropic',
+    modelName: 'Claude Opus 4.5',
+    displayName: 'Claude Opus 4.5',
+  },
+  {
+    openrouterId: 'anthropic/claude-sonnet-4.5',
+    provider: 'anthropic',
+    modelName: 'Claude Sonnet 4.5',
+    displayName: 'Claude Sonnet 4.5',
+  },
   // {
   //   openrouterId: 'anthropic/claude-haiku-4.5',
   //   provider: 'anthropic',
@@ -23,12 +23,12 @@ export const DEFAULT_MODELS = [
   // },
 
   // // Google
-  // {
-  //   openrouterId: 'google/gemini-3-pro-preview',
-  //   provider: 'google',
-  //   modelName: 'Gemini 3 Pro',
-  //   displayName: 'Gemini 3 Pro',
-  // },
+  {
+    openrouterId: 'google/gemini-3-pro-preview',
+    provider: 'google',
+    modelName: 'Gemini 3 Pro',
+    displayName: 'Gemini 3 Pro',
+  },
   {
     openrouterId: 'google/gemini-3-flash-preview',
     provider: 'google',

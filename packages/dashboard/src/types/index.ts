@@ -38,3 +38,10 @@ export interface WeekSummary {
   clueCount: number;
   modelCount: number;
 }
+
+export interface PuzzleInfo {
+  id: number;
+  setter: string | null;
+  url: string | null;
+  title: string | null;
+}
